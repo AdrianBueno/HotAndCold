@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -151,6 +151,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Animation\Animation.cpp" />
+    <ClCompile Include="Core\Animation\AnimationLoader.cpp" />
+    <ClCompile Include="Core\Animation\AnimationStateMachine.cpp" />
+    <ClCompile Include="Core\Animation\Animator.cpp" />
     <ClCompile Include="Core\Camera\Camera.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Entities\Actor.cpp" />
@@ -167,6 +171,10 @@
     <ClCompile Include="Systems\CollisionSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Animation\Animation.h" />
+    <ClInclude Include="Core\Animation\AnimationLoader.h" />
+    <ClInclude Include="Core\Animation\AnimationStateMachine.h" />
+    <ClInclude Include="Core\Animation\Animator.h" />
     <ClInclude Include="Core\Camera\Camera.h" />
     <ClInclude Include="Core\Config.h" />
     <ClInclude Include="Core\Game.h" />
