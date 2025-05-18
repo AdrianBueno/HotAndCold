@@ -13,6 +13,24 @@
     <Filter Include="Map">
       <UniqueIdentifier>{b8c53fbd-b8cc-44ef-936d-dac31fa25349}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{72070fb1-4391-467a-b994-d7e459c62adf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Managers">
+      <UniqueIdentifier>{7ad3d8fa-c361-4b01-889c-de7313e8efad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Managers\Commands">
+      <UniqueIdentifier>{3ed1d243-b971-43cc-ab23-2d600a0438de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Systems">
+      <UniqueIdentifier>{b04c1ce1-e93d-4d78-9ba1-d89aa4d7bcb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Animation">
+      <UniqueIdentifier>{bad16b28-d990-4712-841d-79ed8500e04d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Camera">
+      <UniqueIdentifier>{dfd89d77-7a0f-4d7e-8dd3-f013021ca515}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main\Main.cpp">
@@ -27,6 +45,36 @@
     <ClCompile Include="Map\TileMap.cpp">
       <Filter>Map</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Entity.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\InputManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\EntityManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Actor.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Projectile.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\StaticEntity.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\WorldLoader.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\CollisionSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Camera\Camera.cpp">
+      <Filter>Core\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Game.h">
@@ -37,6 +85,51 @@
     </ClInclude>
     <ClInclude Include="Map\TileMap.h">
       <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Entity.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\InputManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Config.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\EntityManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Actor.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Projectile.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\StaticEntity.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\Commands\Command.h">
+      <Filter>Managers\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\Commands\CommandSpawnProjectile.h">
+      <Filter>Managers\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\Commands\CommandQueue.h">
+      <Filter>Managers\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\IWorld.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\WorldLoader.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\CollisionSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Camera\Camera.h">
+      <Filter>Core\Camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

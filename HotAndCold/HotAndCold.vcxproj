@@ -151,15 +151,40 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Camera\Camera.cpp" />
     <ClCompile Include="Core\Game.cpp" />
+    <ClCompile Include="Entities\Actor.cpp" />
+    <ClCompile Include="Entities\Entity.cpp" />
+    <ClCompile Include="Entities\Player.cpp" />
+    <ClCompile Include="Entities\Projectile.cpp" />
+    <ClCompile Include="Entities\StaticEntity.cpp" />
     <ClCompile Include="Main\Main.cpp" />
+    <ClCompile Include="Managers\EntityManager.cpp" />
+    <ClCompile Include="Managers\InputManager.cpp" />
     <ClCompile Include="Map\Tile.cpp" />
     <ClCompile Include="Map\TileMap.cpp" />
+    <ClCompile Include="Map\WorldLoader.cpp" />
+    <ClCompile Include="Systems\CollisionSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Camera\Camera.h" />
+    <ClInclude Include="Core\Config.h" />
     <ClInclude Include="Core\Game.h" />
+    <ClInclude Include="Entities\Actor.h" />
+    <ClInclude Include="Entities\Entity.h" />
+    <ClInclude Include="Entities\Player.h" />
+    <ClInclude Include="Entities\Projectile.h" />
+    <ClInclude Include="Entities\StaticEntity.h" />
+    <ClInclude Include="Managers\Commands\Command.h" />
+    <ClInclude Include="Managers\Commands\CommandQueue.h" />
+    <ClInclude Include="Managers\Commands\CommandSpawnProjectile.h" />
+    <ClInclude Include="Managers\EntityManager.h" />
+    <ClInclude Include="Managers\InputManager.h" />
+    <ClInclude Include="Map\IWorld.h" />
     <ClInclude Include="Map\Tile.h" />
     <ClInclude Include="Map\TileMap.h" />
+    <ClInclude Include="Map\WorldLoader.h" />
+    <ClInclude Include="Systems\CollisionSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

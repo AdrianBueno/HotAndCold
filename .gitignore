@@ -1,13 +1,8 @@
 # Visual Studio general
-.vs/
-*.VC.db
-*.VC.opendb
-*.suo
-*.user
+
+
 *.userosscache
-*.sdf
 *.cache
-*.dbmdl
 
 # Build directories (Debug, Release, etc.)
 [Bb]in/

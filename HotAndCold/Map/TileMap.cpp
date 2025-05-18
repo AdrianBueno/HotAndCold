@@ -83,3 +83,21 @@ void TileMap::Render(SDL_Renderer* renderer, const SDL_Rect& cameraViewport) con
         }
     }
 }
+
+
+bool TileMap::IsSolidAt( int x, int y) const {
+	return this->IsSolidAt(LAYER_COLLISION, x, y);
+}
+
+bool TileMap::IsSolidAt(LayerType layer, int x, int y) const {
+    if (layer >= LAYER_COUNT || x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) {
+        return false;
+    }
+
+    Tile* tile = layers[layer][y * mapWidth + x];
+    if (tile) {
+        return tile->IsSolid();
+    }
+
+    return false;
+}

@@ -3,9 +3,10 @@
 #include "Tile.h"
 #include <SDL.h>
 #include <vector>
+#include "IWorld.h"
 
 /// @brief Representa el mapa completo con múltiples capas de tiles.
-class TileMap {
+class TileMap : public IWorld {
 public:
     /// @brief Capas lógicas del mapa. Se recomienda seguir este orden para facilitar el render.
 /// Puedes agregar nuevas capas en el futuro sin afectar el código existente, siempre manteniendo LAYER_COUNT al final.
@@ -46,6 +47,21 @@ public:
     int GetNumLayers() const { return static_cast<int>(LAYER_COUNT); }
     int GetWidth() const { return mapWidth; }
     int GetHeight() const { return mapHeight; }
+    /// @brief Devuelve el tamaño de tile en píxeles definido para este mapa.
+    /// @return Tamaño del tile en píxeles.
+    int GetTileSize() const { return tileSize; }
+
+
+	/// @brief Método para comprobar si un tile es sólido en una capa y posición específica.
+    /// @param layer La capa a consultar.
+    /// @param x Posición horizontal del tile en el mapa.
+    /// @param y Posición vertical del tile en el mapa.
+    /// <returns>bool </returns>
+    bool IsSolidAt( int x, int y) const;
+    
+
+
+    
 
 private:
     int mapWidth;
@@ -54,4 +70,5 @@ private:
 
     // Cada capa es una matriz lineal (vector de Tile*), las capas se almacenan en un vector de capas.
     std::vector<std::vector<Tile*>> layers;
+    bool IsSolidAt(LayerType layer, int x, int y) const;
 };

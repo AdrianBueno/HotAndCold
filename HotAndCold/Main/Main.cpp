@@ -1,10 +1,15 @@
 #include "../Core/Game.h"
+#include "../Core/Config.h"
 
-// IMPORTANTE: Cambiar a SDL_main si usas SDL2main.lib
 int SDL_main(int argc, char* argv[]) {
-    Game game; // Usamos stack en vez de heap, más limpio y seguro
+    Game game;
 
-    if (!game.Init("Hot And Cold", 100, 100, 800, 600, false)) {
+    if (!game.Init("Hot And Cold",
+        Config::WINDOW_POS_X,
+        Config::WINDOW_POS_Y,
+        Config::WINDOW_WIDTH,
+        Config::WINDOW_HEIGHT,
+        Config::FULLSCREEN)) {
         return -1;
     }
 

@@ -1,10 +1,25 @@
 #include "Game.h"
 #include "../Map/TileMap.h"
 #include "../Map/Tile.h"
+#include "../Map/WorldLoader.h"
+#include "../Map/IWorld.h"
+#include "../Entities/Player.h"
+#include "../Managers/InputManager.h"
+#include "../Managers/EntityManager.h"
+#include "../Managers/Commands/CommandQueue.h"
+#include "../Core/Camera/Camera.h"
+#include "../Core/Config.h"
 #include <iostream>
 
-// Variables internas añadidas
-TileMap* tileMap = nullptr;
+// Instancias globales locales (en el futuro serían singletons o sistemas internos)
+EntityManager* entityManager = nullptr;
+CommandQueue commandQueue;
+Player* player = nullptr;
+WorldLoader* worldLoader = nullptr;
+IWorld* logicWorld = nullptr;
+TileMap* renderTileMap = nullptr;
+Camera* camera = nullptr;
+
 SDL_Texture* testTexture = nullptr;
 SDL_Texture* greenTexture = nullptr;
 SDL_Texture* blueTexture = nullptr;
@@ -13,38 +28,33 @@ Tile* testTile = nullptr;
 Tile* greenTile = nullptr;
 Tile* blueTile = nullptr;
 Tile* grayTile = nullptr;
-SDL_Rect cameraViewport = { 0, 0, 800, 600 }; // Vista inicial
 
-/// @brief Constructor del juego. Inicializa punteros y estado base.
+/// @brief Constructor del juego. Inicializa variables.
 Game::Game()
     : window(nullptr), renderer(nullptr), isRunning(false) {
 }
 
-/// @brief Destructor del juego. Limpia recursos de SDL.
+/// @brief Destructor del juego. Libera recursos.
 Game::~Game() {
-    Clean(); // Asegura que SDL se limpie correctamente al destruir el objeto
+    Clean();
 }
 
 /// @brief Crea una textura simple de test.
+/// @param renderer Renderer de SDL.
+/// @param color Color de la textura.
+/// @param tileSize Tamaño en píxeles.
+/// @return Textura generada.
 SDL_Texture* Game::CreateTestTile(SDL_Renderer* renderer, SDL_Color color, int tileSize) {
     SDL_Surface* surface = SDL_CreateRGBSurface(0, tileSize, tileSize, 32,
-        0x00FF0000,
-        0x0000FF00,
-        0x000000FF,
-        0xFF000000);
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
     SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     return texture;
 }
-/// @brief Inicializa SDL, crea ventana y renderer.
-/// @param title Título de la ventana.
-/// @param xpos Posición X de la ventana.
-/// @param ypos Posición Y de la ventana.
-/// @param width Ancho de la ventana.
-/// @param height Alto de la ventana.
-/// @param fullscreen Si es true, se crea en modo pantalla completa.
-/// @return true si la inicialización fue exitosa, false en caso de error.
+
+/// @brief Inicializa SDL, la ventana, el renderer y los sistemas básicos.
+/// @return true si inicialización fue correcta.
 bool Game::Init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cerr << "[Game] SDL_Init failed: " << SDL_GetError() << std::endl;
@@ -52,7 +62,6 @@ bool Game::Init(const char* title, int xpos, int ypos, int width, int height, bo
     }
 
     Uint32 windowFlags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
-
     window = SDL_CreateWindow(title, xpos, ypos, width, height, windowFlags);
     if (!window) {
         std::cerr << "[Game] Window creation failed: " << SDL_GetError() << std::endl;
@@ -68,38 +77,31 @@ bool Game::Init(const char* title, int xpos, int ypos, int width, int height, bo
         return false;
     }
 
-    // Crear texturas y tiles de test de varios colores
-    testTexture = CreateTestTile(renderer, { 255, 0, 0, 255 }, 32);
-    greenTexture = CreateTestTile(renderer, { 0, 255, 0, 255 }, 32);
-    blueTexture = CreateTestTile(renderer, { 0, 0, 255, 255 }, 32);
-    grayTexture = CreateTestTile(renderer, { 128, 128, 128, 255 }, 32);
+    logicWorld = WorldLoader::CreateTestWorld(renderer);
+    renderTileMap = dynamic_cast<TileMap*>(logicWorld);
 
-    testTile = new Tile(1, testTexture, { 0, 0, 32, 32 }, false);
-    greenTile = new Tile(2, greenTexture, { 0, 0, 32, 32 }, false);
-    blueTile = new Tile(3, blueTexture, { 0, 0, 32, 32 }, false);
-    grayTile = new Tile(4, grayTexture, { 0, 0, 32, 32 }, false);
+    // EntityManager y Player
+    entityManager = new EntityManager();
+    player = new Player(logicWorld->GetWidth() * logicWorld->GetTileSize() / 2,
+        logicWorld->GetHeight() * logicWorld->GetTileSize() / 2);
+    entityManager->Add(std::unique_ptr<Entity>(player));
 
-    // Crear el TileMap
-    tileMap = new TileMap(100, 100, 32);
-    for (int y = 0; y < tileMap->GetHeight(); ++y) {
-        for (int x = 0; x < tileMap->GetWidth(); ++x) {
-            // Crear zonas de colores
-            if (x > 20 && x < 40 && y > 20 && y < 40)
-                tileMap->SetTile(TileMap::LAYER_GROUND, x, y, greenTile);
-            else if (x > 50 && x < 70 && y > 50 && y < 70)
-                tileMap->SetTile(TileMap::LAYER_GROUND, x, y, blueTile);
-            else if (x > 10 && x < 15 && y > 60 && y < 80)
-                tileMap->SetTile(TileMap::LAYER_GROUND, x, y, grayTile);
-            else
-                tileMap->SetTile(TileMap::LAYER_GROUND, x, y, testTile);
-        }
-    }
+    // Configurar cámara y límites
+    camera = new Camera(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
+    SDL_Rect mapBounds = { 0, 0, logicWorld->GetWidth() * logicWorld->GetTileSize(), logicWorld->GetHeight() * logicWorld->GetTileSize() };
+    camera->SetLimits(mapBounds);
+    camera->UpdateViewportFromWindow(window);
+    camera->RecalculateDeadZone(0.15f);
+    camera->SetTarget(player);
+
+    InputManager::Init();
 
     isRunning = true;
     std::cout << "[Game] Initialized successfully." << std::endl;
     return true;
 }
 
+/// @brief Procesa eventos SDL (teclado, ratón, etc.).
 void Game::HandleEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -107,47 +109,68 @@ void Game::HandleEvents() {
             isRunning = false;
             std::cout << "[Game] Quit event received." << std::endl;
         }
+        InputManager::ProcessEvent(event);
     }
 
-    // Movimiento cámara (teclas flechas)
-    const int speed = 10;
-    const Uint8* state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_LEFT]) cameraViewport.x -= speed;
-    if (state[SDL_SCANCODE_RIGHT]) cameraViewport.x += speed;
-    if (state[SDL_SCANCODE_UP]) cameraViewport.y -= speed;
-    if (state[SDL_SCANCODE_DOWN]) cameraViewport.y += speed;
-
-    // Debug opcional
-    // std::cout << "[Camera] Pos: " << cameraViewport.x << ", " << cameraViewport.y << std::endl;
 }
 
+/// @brief Actualiza el juego completo (input, entidades, cámara).
 void Game::Update() {
-    // Aquí se actualizará la lógica del juego en el futuro (entidades, IA, física, etc.)
+    static Uint32 lastTicks = SDL_GetTicks();
+    Uint32 currentTicks = SDL_GetTicks();
+    float deltaTime = (currentTicks - lastTicks) / 1000.0f;
+    lastTicks = currentTicks;
+
+    InputManager::Update();
+
+    if (entityManager) {
+        entityManager->Update(deltaTime, *logicWorld, commandQueue);
+    }
+
+    // Procesar todos los comandos acumulados (como spawns)
+    commandQueue.Process(*entityManager);
+
+    if (camera) {
+        camera->Update(window);
+    }
 }
 
+/// @brief Renderiza toda la escena.
 void Game::Render() {
     if (!renderer) return;
 
     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
     SDL_RenderClear(renderer);
 
-    // Renderizar el TileMap
-    if (tileMap) {
-        tileMap->Render(renderer, cameraViewport);
+    if (renderTileMap) {
+        renderTileMap->Render(renderer, camera->GetViewport());
     }
 
-    // Dibujar rejilla de debug
+    if (entityManager) {
+        entityManager->Render(renderer, camera->GetViewport());
+    }
+
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
-    for (int x = 0; x < 800; x += 32)
-        SDL_RenderDrawLine(renderer, x, 0, x, 600);
-    for (int y = 0; y < 600; y += 32)
-        SDL_RenderDrawLine(renderer, 0, y, 800, y);
+    for (int x = 0; x < windowWidth; x += 32)
+        SDL_RenderDrawLine(renderer, x, 0, x, windowHeight);
+    for (int y = 0; y < windowHeight; y += 32)
+        SDL_RenderDrawLine(renderer, 0, y, windowWidth, y);
 
     SDL_RenderPresent(renderer);
 }
 
+/// @brief Libera todos los recursos y cierra SDL.
 void Game::Clean() {
-    if (tileMap) { delete tileMap; tileMap = nullptr; }
+    if (logicWorld) { 
+        delete logicWorld; 
+        logicWorld = nullptr;
+		renderTileMap = nullptr;
+    }
+    if (camera) { delete camera; camera = nullptr; }
+    if (entityManager) { delete entityManager; entityManager = nullptr; }
 
     if (testTile) { delete testTile; testTile = nullptr; }
     if (greenTile) { delete greenTile; greenTile = nullptr; }
@@ -166,6 +189,8 @@ void Game::Clean() {
     std::cout << "[Game] Cleaned and SDL Quit." << std::endl;
 }
 
+/// @brief Devuelve si el juego sigue activo.
+/// @return true si el juego está en ejecución.
 bool Game::Running() const {
     return isRunning;
 }
